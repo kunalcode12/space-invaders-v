@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="shortcut icon" href="../public/favicon-96.png" />
+    <link rel="apple-touch-icon" href="../public/favicon-180.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Space Invaders</title>
+    <meta
+      name="description"
+      content="A fun re-imagining of the 1978 classic Space Invaders by Tomohiro Nishikado and Taito. Play in 2D or 3D 3rd person mode in your web browser."
+    />
+    <meta property="og:title" content="Space Invaders in your browser" />
+    <meta property="og:type" content="game" />
+    <meta property="og:url" content="https://spaceinvaders.viperfish.com.au/" />
+    <meta
+      property="og:image"
+      content="https://spaceinvaders.viperfish.com.au/assets/images/space_Invaders_babylonjs_3.jpg"
+    />
+    <meta property="og:site_name" content="Space Invaders in your browser" />
+    <meta
+      property="og:description"
+      content="A fun re-imagining of the 1978 classic Space Invaders by Tomohiro Nishikado and Taito. Play in 2D or 3D 3rd person mode in your web browser."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@johnpitchers" />
+    <meta name="twitter:creator" content="@johnpitchers" />
+    <meta name="twitter:title" content="Space Invaders in your browser" />
+    <meta
+      name="twitter:description"
+      content="Play in your browser. A fun re-imagining of the 1978 classic Space Invaders by Tomohiro Nishikado and Taito. Play in 2D or 3D 3rd person mode in your web browser."
+    />
+    <meta
+      name="twitter:image:src"
+      content="https://spaceinvaders.viperfish.com.au/assets/images/space_Invaders_babylonjs_3.jpg"
+    />
+    <meta name="twitter:domain" content="spaceinvaders.viperfish.com.au" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/style.scss" />
+  </head>
+  <body>
+    <div id="container">
+      <canvas></canvas>
+      <div id="ui" class="active">
+        <div id="title-screen" class="active">
+          <div id="title">
+            <div class="layer layer1">SPACE<br />INVADERS</div>
+            <div class="layer layer2">SPACE<br />INVADERS</div>
+            <div class="layer layer3">SPACE<br />INVADERS</div>
+          </div>
+          <div id="portrait-warning">Best played in landscape</div>
+          
+          <!-- Arena Status Display -->
+          <div id="arena-status-container" class="arena-status-container">
+            <div id="arena-status-header" class="arena-status-header">
+              <span id="arena-status-label" class="arena-status-label">ARENA STATUS:</span>
+              <span id="arena-status-text" class="arena-status-text status-pending">PENDING</span>
+            </div>
+            <div id="arena-countdown-container" class="arena-countdown-container" style="display: none;">
+              <span class="arena-countdown-label">Starting in:</span>
+              <span id="arena-countdown-text" class="arena-countdown-text">--</span>
+            </div>
+            <div id="arena-game-id" class="arena-game-id" style="display: none;"></div>
+          </div>
+
+          <div id="credits">
+            <div>
+              <p>------</p>
+              <p>Arrow keys to move <br />Shift, Space or Enter to shoot</p>
+              <p>------</p>
+              <div class="small">
+                <p>2025 by Kunal Sharma</p>
+                <p>
+                  Built with BabylonJS. 3D models created in Blender. Sound
+                  effects by Ayush Jha
+                </p>
+                <!-- <p>All code and models on Github: https://github.com/johnpitchers/Space-Invaders</p> -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="game-ui" class="">
+          <div id="panel-game-over" class="">GAME OVER</div>
+          <div id="panel-new-highscore" class="">
+            **** NEW HIGH SCORE ****<br />
+            <div class="value">0</div>
+          </div>
+          <div id="panel-game-hints">
+            ---==Ξ <span class="lg">!</span> Ξ==---
+            <div class="value"></div>
+            ---==Ξ==---
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="loading" class="active">LOADING<br />...</div>
+    <div id="intro" class="">
+      <p>
+        Select mode<br /><select id="change-mode">
+          <option value="0">Traditional 2D</option>
+          <option value="1">2D oldschool CRT</option>
+          <option value="2">Action cam 3D</option>
+        </select>
+      </p>
+      <p>
+        <button id="start-arena" class="arena-start-btn" disabled>START ARENA</button>
+      </p>
+      <p>
+        <button id="start-game" style="display: none;" disabled>START GAME</button>
+      </p>
+    </div>
+    
+    <!-- Stream URL Input Modal -->
+    <div id="stream-url-modal" class="stream-url-modal">
+      <div class="stream-url-modal-content">
+        <h2>Enter Stream URL</h2>
+        <p class="stream-url-hint">Please provide the stream URL for the arena</p>
+        <input 
+          type="text" 
+          id="stream-url-input" 
+          class="stream-url-input" 
+          placeholder="https://twitch.tv/empireofbits"
+          value="https://twitch.tv/empireofbits"
+        />
+        <div class="stream-url-buttons">
+          <button id="stream-url-cancel" class="stream-url-btn stream-url-cancel">Cancel</button>
+          <button id="stream-url-submit" class="stream-url-btn stream-url-submit">Submit</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Boost Notification Popup -->
+    <div id="boost-notification" class="boost-notification">
+      <div class="boost-notification-content">
+        <div class="boost-notification-icon">⚡</div>
+        <div class="boost-notification-text">
+          <div class="boost-notification-amount">+0</div>
+          <div class="boost-notification-name">from Viewer</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Points Dropping Container -->
+    <div id="points-drop-container" class="points-drop-container"></div>
+    
+    <!-- Special Move Overlay -->
+    <div id="special-move-overlay" class="special-move-overlay">
+      <div class="special-move-content">
+        <div class="special-move-title">SPECIAL MOVE ACTIVATED!</div>
+        <div class="special-move-effect">MEGA BOOST</div>
+        <div class="special-move-particles"></div>
+      </div>
+    </div>
+    
+    <!-- Item Notification -->
+    <div id="item-notification" class="item-notification">
+      <div class="item-notification-content">
+        <div class="item-notification-icon">🎁</div>
+        <div class="item-notification-text">
+          <div class="item-notification-item-name">Item Received</div>
+          <div class="item-notification-details">
+            <span class="item-target">for Player</span>
+            <span class="item-cost">Cost: 0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Overclock UI Container -->
+    <div id="overclock-ui-container" class="overclock-ui-container"></div>
+    
+    <!-- Guardian Shield UI Container -->
+    <div id="shield-ui-container" class="shield-ui-container">
+      <div id="shield-status-display" class="shield-status-display"></div>
+    </div>
+    
+    <!-- Thunder Strike Flicker Overlay -->
+    <div id="thunder-flicker-overlay" class="thunder-flicker-overlay"></div>
+    
+    <div id="panel-play-again" class="">
+      <button id="play-again">PLAY AGAIN</button>
+    </div>
+    <script type="module" src="./main.js"></script>
+    <script>
+      loading();
+
+      function loading() {
+        setTimeout(function () {
+          let el = document.querySelector("#loading");
+          el.append(".");
+          if (el.classList.contains("active")) {
+            loading();
+          }
+        }, 1000);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1523 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+//@import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bebas+Neue&family=Press+Start+2P&display=swap');
+
+$scanlines: repeating-linear-gradient(
+                0deg,
+                rgba(black, 0.2),
+                rgba(black, 0.2) 1px,
+                transparent 1px,
+                transparent 2px
+);
+html {
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font-family: 'Press Start 2P', Arial, sans-serif;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  background: #03081a;
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  &.mode2 {
+    #credits {
+      perspective: 200px;
+      perspective-origin: bottom;
+    }
+  }
+
+  &.scanlines {
+    #container {
+      position: relative;
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: $scanlines
+      }
+
+      #ui {
+        //filter: blur(0.03em);
+        text-shadow: 0 0 0.4em rgba(255, 255, 255, 0.7);
+      }
+
+      #title {
+        filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.26)) blur(1px);
+      }
+    }
+
+    #intro, #play-again {
+      filter: blur(0.8px);
+    }
+  }
+
+  #container {
+    width: 100%;
+    height: 100%;
+  }
+
+  button {
+    font: inherit;
+    background: transparent;
+    color: #0f0;
+    border: 2px solid #0f0;
+    padding: 10px 10px 8px;
+    position: relative;
+    font-size: 1.2em;
+  }
+
+  #loading {
+    display: none;
+    text-align: center;
+    color: #fff;
+    position: absolute;
+    top: 46%;
+    font-size: 1.7vh;
+    line-height: 1.5;
+    width: 300px;
+    max-width: 100%;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    left: 50%;
+    transform: translateX(-50%);
+    //@media(min-width: 1350px) {
+    //  font-size: 22px;
+    //}
+
+    &.active {
+      display: block
+    }
+  }
+
+  #intro {
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    position: absolute;
+    top: 46%;
+    font-size: 1.7vh;
+    //@media(min-width: 1350px) {
+    //  font-size: 22px;
+    //}
+
+    line-height: 1.5;
+    display: none;
+
+    &.active {
+      display: block;
+    }
+
+    button {
+      margin-top: 1.5em;
+    }
+
+    select {
+      font: inherit;
+      background: transparent;
+      color: #99f;
+      border: none;
+      border-bottom: 2px solid #99f;
+      padding: 5px 0;
+      position: relative;
+
+      option {
+        background: #000;
+        color: #fff;
+        position: relative;
+      }
+    }
+  }
+
+  #panel-play-again {
+    display: none;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, 15vh);
+    text-align: center;
+
+    &.active {
+      display: block;
+    }
+  }
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+#ui {
+  display: none;
+
+  &.active {
+    display: block;
+  }
+
+  font-size: 1.7vh;
+  //@media(min-width: 1350px) {
+  //  font-size: 22px;
+  //}
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  color: #fff;
+
+  #game-ui {
+    display: none;
+
+    &.active {
+      display: block;
+    }
+  }
+
+  #panel-score {
+    position: absolute;
+    top: 20px;
+    left: calc(50% - 450px);
+    transform: translate(-50%);
+  }
+
+  #panel-level {
+    position: absolute;
+    top: 20px;
+    left: calc(50% - 150px);
+    transform: translate(-50%);
+  }
+
+  #panel-lives {
+    position: absolute;
+    top: 20px;
+    right: calc(50% - 150px);
+    transform: translate(50%);
+  }
+
+  #panel-highscore {
+    position: absolute;
+    top: 20px;
+    right: calc(50% - 450px);
+    transform: translate(50%);
+  }
+
+  #panel-game-over {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 0;
+    font-size: 6.5em;
+    transition: none;
+    text-align: center;
+
+    &.active {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 9;
+      transition: all ease 2s;
+    }
+  }
+
+  #panel-new-highscore {
+    display: none;
+    position: absolute;
+    color: #ffff00;
+    left: 50%;
+    top: 35%;
+    text-align: center;
+    transform: translate(-50%, -50%);
+
+    &.active {
+      display: block;
+    }
+
+    .value {
+      color: #f00;
+      padding-top: 1em;
+    }
+  }
+
+  #panel-game-hints {
+    display: none;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    max-width: 80%;
+    width: 600px;
+    line-height: 1.5;
+    text-align: center;
+    transform: translate(-50%, -50%);
+    color: #fa3;
+    font-size: 0.666em;
+
+    .lg {
+      font-size: 2.1em;
+      color: #ff0;
+      vertical-align: middle;
+    }
+    .value {
+      font-size: 1.5em;
+      color: #fff;
+      margin: 1em 0;
+    }
+
+    &.active {
+      display: block;
+    }
+  }
+
+  $shadowColor: #000;
+
+  #title-screen {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 1.7vh;
+    //@media(min-width: 1350px) {
+    //  font-size: 24px;
+    //}
+    display: none;
+    line-height: 1.6;
+
+    &.active {
+      display: block;
+    }
+
+    #portrait-warning {
+      color: #f00;
+      padding-top: 1em;
+      display: none;
+      font-size: 0.75em;
+      @media all and (orientation: portrait) {
+        display: block;
+      }
+    }
+
+    #title {
+      position: absolute;
+      top: 30%;
+      width: 100%;
+      text-align: center;
+      font-size: 6vh;
+      //@media(min-width: 1350px) {
+      //  font-size: 75px;
+      //}
+      color: #ff0;
+      line-height: 1.05;
+      text-shadow: 0 0.05em $shadowColor, 0 -0.05em $shadowColor, 0.05em 0 $shadowColor, -0.05em 0 $shadowColor,
+      0.05em 0.05em $shadowColor, 0.05em -0.05em $shadowColor, 0.05em -0.05em $shadowColor, -0.05em -0.05em $shadowColor;
+      perspective: 3em;
+      perspective-origin: top;
+
+      .layer {
+        position: absolute;
+        width: 100%;
+        left: 0;
+        transform-origin: bottom;
+      }
+
+      .layer3 {
+        transform: rotateX(-17deg) scaleY(2);
+      }
+
+      .layer2 {
+        $shadowcolor-l1: #c00;
+        color: $shadowcolor-l1;
+        text-shadow: 0 0.02em $shadowcolor-l1, 0 -0.02em $shadowcolor-l1, 0.02em 0 $shadowcolor-l1, -0.02em 0 $shadowcolor-l1,
+        0.02em 0.02em $shadowcolor-l1, 0.02em -0.02em $shadowcolor-l1, 0.02em -0.02em $shadowcolor-l1, -0.02em -0.02em $shadowcolor-l1;
+        transform: rotateX(-17deg) scaleY(2) translateZ(-0.1em) translateY(-0.12em);
+      }
+
+      .layer1 {
+        $shadowcolor-l2: #000;
+        color: $shadowcolor-l2;
+        text-shadow: 0 0.05em $shadowcolor-l2, 0 -0.05em $shadowcolor-l2, 0.05em 0 $shadowcolor-l2, -0.05em 0 $shadowcolor-l2,
+        0.05em 0.05em $shadowcolor-l2, 0.05em -0.05em $shadowcolor-l2, 0.05em -0.05em $shadowcolor-l2, -0.05em -0.05em $shadowcolor-l2;
+        transform: rotateX(-17deg) scaleY(2) translateZ(-0.2em) translateY(-0.2em);
+      }
+    }
+
+    #credits {
+      font-size: 0.9em;
+      position: absolute;
+      bottom: 20px;
+      padding: 0 2em;
+      width: 100%;
+      box-sizing: border-box;
+
+      & > div {
+        transform: rotateX(20deg);
+      }
+    }
+  }
+}
+
+.small {
+  font-size: 0.75em;
+}
+
+// Arena Status Styles
+#arena-status-container {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: #fff;
+  font-size: 0.9em;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 15px 20px;
+  border: 2px solid #0f0;
+  border-radius: 5px;
+  min-width: 300px;
+  display: none; // Initially hidden, shown when arena is initialized
+
+  .arena-status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 15px;
+  }
+
+  .arena-status-label {
+    color: #0f0;
+    font-size: 0.85em;
+  }
+
+  .arena-status-text {
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 3px;
+
+    &.status-pending {
+      color: #ffaa00;
+      background: rgba(255, 170, 0, 0.2);
+      border: 1px solid #ffaa00;
+    }
+
+    &.status-live {
+      color: #0f0;
+      background: rgba(0, 255, 0, 0.2);
+      border: 1px solid #0f0;
+      animation: pulse 1s infinite;
+    }
+
+    &.status-completed {
+      color: #00aaff;
+      background: rgba(0, 170, 255, 0.2);
+      border: 1px solid #00aaff;
+    }
+
+    &.status-stopped {
+      color: #ff0000;
+      background: rgba(255, 0, 0, 0.2);
+      border: 1px solid #ff0000;
+    }
+  }
+
+  .arena-countdown-container {
+    margin-top: 10px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 3px;
+
+    .arena-countdown-label {
+      color: #99f;
+      font-size: 0.8em;
+      margin-right: 10px;
+    }
+
+    .arena-countdown-text {
+      color: #0f0;
+      font-size: 1.3em;
+      font-weight: bold;
+      font-family: 'Courier New', monospace;
+    }
+  }
+
+  .arena-game-id {
+    margin-top: 8px;
+    font-size: 0.7em;
+    color: #999;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 5px #0f0;
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 15px #0f0;
+  }
+}
+
+.arena-start-btn {
+  font: inherit;
+  background: rgba(0, 255, 0, 0.2);
+  color: #0f0;
+  border: 2px solid #0f0;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &:hover {
+    background: rgba(0, 255, 0, 0.4);
+    box-shadow: 0 0 10px #0f0;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Arena Monitoring Panel Styles
+.arena-monitoring-panel {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  width: 400px;
+  max-width: calc(100vw - 20px);
+  max-height: calc(100vh - 20px);
+  background: rgba(0, 0, 0, 0.95);
+  border: 2px solid #0f0;
+  border-radius: 5px;
+  color: #fff;
+  font-family: 'Press Start 2P', Arial, sans-serif;
+  font-size: 0.7em;
+  z-index: 1000;
+  display: none;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+
+  &.active {
+    display: block;
+  }
+
+  .arena-monitoring-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: rgba(0, 255, 0, 0.1);
+    border-bottom: 1px solid #0f0;
+
+    h2 {
+      margin: 0;
+      font-size: 1em;
+      color: #0f0;
+    }
+
+    button {
+      font: inherit;
+      background: transparent;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 0.7em;
+      margin-left: 5px;
+
+      &:hover {
+        background: rgba(0, 255, 0, 0.2);
+      }
+    }
+
+    .arena-disconnect-btn {
+      color: #f00;
+      border-color: #f00;
+
+      &:hover {
+        background: rgba(255, 0, 0, 0.2);
+      }
+    }
+  }
+
+  .arena-status-section {
+    padding: 10px;
+    border-bottom: 1px solid #333;
+
+    .arena-status-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.8em;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .arena-status-label {
+        color: #99f;
+      }
+
+      .arena-status-value {
+        color: #0f0;
+        font-weight: bold;
+
+        &.status-pending {
+          color: #ffaa00;
+        }
+
+        &.status-live {
+          color: #0f0;
+          animation: pulse 1s infinite;
+        }
+
+        &.status-completed {
+          color: #00aaff;
+        }
+
+        &.status-stopped {
+          color: #f00;
+        }
+      }
+
+      .arena-countdown-value {
+        color: #0f0;
+        font-family: 'Courier New', monospace;
+
+        &.countdown-active {
+          animation: pulse 1s infinite;
+        }
+      }
+
+      .arena-boost-cycle-value {
+        color: #ffaa00;
+      }
+    }
+  }
+
+  .arena-latest-boost {
+    padding: 10px;
+    border-bottom: 1px solid #333;
+    background: rgba(0, 255, 0, 0.05);
+
+    .arena-boost-label {
+      color: #99f;
+      font-size: 0.8em;
+      margin-bottom: 5px;
+    }
+
+    .arena-boost-info {
+      font-size: 0.9em;
+      color: #999;
+
+      &.boost-active {
+        color: #0f0;
+
+        .boost-amount {
+          font-size: 1.2em;
+          font-weight: bold;
+          color: #0f0;
+          margin-right: 10px;
+        }
+
+        .boost-name {
+          color: #fff;
+        }
+      }
+    }
+  }
+
+  .arena-events-container {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+
+    .arena-events-header {
+      color: #0f0;
+      font-size: 0.9em;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 5px;
+    }
+
+    .arena-events-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .arena-event-item {
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 3px solid #333;
+      border-radius: 3px;
+      font-size: 0.7em;
+      line-height: 1.4;
+
+      &.event-arena_countdown_started {
+        border-left-color: #ffaa00;
+      }
+
+      &.event-countdown_update {
+        border-left-color: #0f0;
+      }
+
+      &.event-arena_begins {
+        border-left-color: #0f0;
+        background: rgba(0, 255, 0, 0.1);
+      }
+
+      &.event-player_boost_activated {
+        border-left-color: #00aaff;
+        background: rgba(0, 170, 255, 0.1);
+      }
+
+      &.event-boost_cycle_update {
+        border-left-color: #ffaa00;
+      }
+
+      &.event-package_drop {
+        border-left-color: #ff00ff;
+      }
+
+      &.event-immediate_item_drop {
+        border-left-color: #ffff00;
+      }
+
+      &.event-game_completed {
+        border-left-color: #00aaff;
+      }
+
+      &.event-game_stopped {
+        border-left-color: #f00;
+      }
+
+      .event-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+
+        .event-type {
+          color: #0f0;
+          font-weight: bold;
+        }
+
+        .event-time {
+          color: #999;
+          font-size: 0.9em;
+        }
+      }
+
+      .event-data {
+        color: #ccc;
+        font-size: 0.9em;
+        word-break: break-word;
+      }
+    }
+  }
+
+  // Scrollbar styling
+  .arena-events-container::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .arena-events-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .arena-events-container::-webkit-scrollbar-thumb {
+    background: #0f0;
+    border-radius: 4px;
+  }
+
+  .arena-events-container::-webkit-scrollbar-thumb:hover {
+    background: #0f0;
+    opacity: 0.8;
+  }
+}
+
+// Hide monitoring panel on small screens by default
+@media (max-width: 768px) {
+  .arena-monitoring-panel {
+    width: calc(100vw - 20px);
+    font-size: 0.6em;
+  }
+}
+
+// Stream URL Modal Styles
+.stream-url-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+
+  &.active {
+    display: flex;
+  }
+
+  .stream-url-modal-content {
+    background: rgba(0, 0, 0, 0.95);
+    border: 3px solid #0f0;
+    border-radius: 10px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    color: #fff;
+    font-family: 'Press Start 2P', Arial, sans-serif;
+
+    h2 {
+      color: #0f0;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+    }
+
+    .stream-url-hint {
+      color: #99f;
+      font-size: 0.7em;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .stream-url-input {
+      width: 100%;
+      padding: 15px;
+      font-family: 'Press Start 2P', Arial, sans-serif;
+      font-size: 0.7em;
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid #0f0;
+      color: #0f0;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+
+      &:focus {
+        outline: none;
+        border-color: #0ff;
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+      }
+
+      &::placeholder {
+        color: #666;
+      }
+    }
+
+    .stream-url-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+
+      .stream-url-btn {
+        font: inherit;
+        padding: 10px 20px;
+        border: 2px solid;
+        background: transparent;
+        cursor: pointer;
+        font-size: 0.8em;
+        transition: all 0.3s;
+
+        &.stream-url-submit {
+          color: #0f0;
+          border-color: #0f0;
+
+          &:hover {
+            background: rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 10px #0f0;
+          }
+        }
+
+        &.stream-url-cancel {
+          color: #f00;
+          border-color: #f00;
+
+          &:hover {
+            background: rgba(255, 0, 0, 0.2);
+            box-shadow: 0 0 10px #f00;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Boost Notification Popup Styles
+.boost-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1500;
+  display: none;
+  pointer-events: none;
+
+  &.active {
+    display: block;
+    animation: boostSlideIn 0.5s ease-out, boostSlideOut 0.5s ease-in 2.5s forwards;
+  }
+
+  .boost-notification-content {
+    background: rgba(0, 0, 0, 0.9);
+    border: 3px solid #0f0;
+    border-radius: 10px;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    min-width: 250px;
+
+    .boost-notification-icon {
+      font-size: 2em;
+      animation: boostPulse 1s infinite;
+    }
+
+    .boost-notification-text {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+
+      .boost-notification-amount {
+        color: #0f0;
+        font-size: 1.5em;
+        font-weight: bold;
+        font-family: 'Press Start 2P', Arial, sans-serif;
+      }
+
+      .boost-notification-name {
+        color: #fff;
+        font-size: 0.8em;
+        font-family: 'Press Start 2P', Arial, sans-serif;
+      }
+    }
+  }
+
+  &.boost-large {
+    .boost-notification-content {
+      border-color: #ff0;
+      box-shadow: 0 0 30px rgba(255, 255, 0, 0.7);
+
+      .boost-notification-icon {
+        font-size: 2.5em;
+        color: #ff0;
+      }
+
+      .boost-notification-amount {
+        color: #ff0;
+        font-size: 2em;
+      }
+    }
+  }
+
+  &.boost-mega {
+    .boost-notification-content {
+      border-color: #f0f;
+      box-shadow: 0 0 40px rgba(255, 0, 255, 0.8);
+      animation: boostMegaPulse 0.5s infinite;
+
+      .boost-notification-icon {
+        font-size: 3em;
+        color: #f0f;
+      }
+
+      .boost-notification-amount {
+        color: #f0f;
+        font-size: 2.5em;
+      }
+    }
+  }
+}
+
+@keyframes boostSlideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes boostSlideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+}
+
+@keyframes boostPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes boostMegaPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 40px rgba(255, 0, 255, 0.8);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 60px rgba(255, 0, 255, 1);
+  }
+}
+
+// Points Dropping Animation Styles
+.points-drop-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1400;
+  overflow: hidden;
+}
+
+.points-drop-item {
+  position: absolute;
+  font-family: 'Press Start 2P', Arial, sans-serif;
+  font-size: 2em;
+  font-weight: bold;
+  color: #0f0;
+  text-shadow: 0 0 10px #0f0, 0 0 20px #0f0;
+  animation: pointsDrop 3s ease-out forwards;
+  pointer-events: none;
+  z-index: 1401;
+}
+
+@keyframes pointsDrop {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) scale(0.5);
+    opacity: 0;
+  }
+}
+
+.points-drop-item.large {
+  font-size: 3em;
+  color: #ff0;
+  text-shadow: 0 0 15px #ff0, 0 0 30px #ff0;
+  animation: pointsDropLarge 4s ease-out forwards;
+}
+
+@keyframes pointsDropLarge {
+  0% {
+    transform: translateY(0) scale(1.5) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(50vh) scale(1.2) rotate(180deg);
+  }
+  100% {
+    transform: translateY(100vh) scale(0.3) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+// Special Move Overlay Styles
+.special-move-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1600;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+
+  &.active {
+    display: flex;
+    animation: specialMoveFadeIn 0.5s ease-out;
+  }
+
+  .special-move-content {
+    text-align: center;
+    color: #fff;
+    font-family: 'Press Start 2P', Arial, sans-serif;
+    position: relative;
+
+    .special-move-title {
+      font-size: 3em;
+      color: #f0f;
+      text-shadow: 0 0 20px #f0f, 0 0 40px #f0f;
+      animation: specialMoveTitlePulse 0.5s infinite;
+      margin-bottom: 20px;
+    }
+
+    .special-move-effect {
+      font-size: 2em;
+      color: #ff0;
+      text-shadow: 0 0 15px #ff0, 0 0 30px #ff0;
+      animation: specialMoveEffectPulse 0.3s infinite;
+    }
+
+    .special-move-particles {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      height: 200px;
+      pointer-events: none;
+
+      &::before,
+      &::after {
+        content: '';
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: #f0f;
+        border-radius: 50%;
+        box-shadow: 0 0 20px #f0f;
+        animation: particleExplode 2s ease-out forwards;
+      }
+
+      &::before {
+        top: 0;
+        left: 50%;
+        animation-delay: 0s;
+      }
+
+      &::after {
+        bottom: 0;
+        left: 50%;
+        animation-delay: 0.1s;
+      }
+    }
+  }
+}
+
+@keyframes specialMoveFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes specialMoveTitlePulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.9;
+  }
+}
+
+@keyframes specialMoveEffectPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes particleExplode {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(
+      calc(var(--dx) * 100px),
+      calc(var(--dy) * 100px)
+    ) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes particleMove {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--move-x)), calc(-50% + var(--move-y))) scale(0);
+    opacity: 0;
+  }
+}
+
+// Item Notification Styles
+.item-notification {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1500;
+  display: none;
+  pointer-events: none;
+
+  &.active {
+    display: block;
+    animation: itemSlideIn 0.5s ease-out, itemSlideOut 0.5s ease-in 3.5s forwards;
+  }
+
+  .item-notification-content {
+    background: rgba(0, 0, 0, 0.9);
+    border: 3px solid #ff0;
+    border-radius: 10px;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+    min-width: 280px;
+
+    .item-notification-icon {
+      font-size: 2.5em;
+      animation: itemPulse 1s infinite;
+    }
+
+    .item-notification-text {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+
+      .item-notification-item-name {
+        color: #ff0;
+        font-size: 1.2em;
+        font-weight: bold;
+        font-family: 'Press Start 2P', Arial, sans-serif;
+      }
+
+      .item-notification-details {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        font-size: 0.8em;
+        font-family: 'Press Start 2P', Arial, sans-serif;
+
+        .item-target {
+          color: #0ff;
+        }
+
+        .item-cost {
+          color: #0f0;
+        }
+      }
+    }
+  }
+}
+
+@keyframes itemSlideIn {
+  from {
+    transform: translateX(-400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes itemSlideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-400px);
+    opacity: 0;
+  }
+}
+
+@keyframes itemPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+// Overclock UI Styles
+.overclock-ui-container {
+  position: fixed;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1300;
+  pointer-events: none;
+  display: none;
+
+  &.active {
+    display: block;
+  }
+}
+
+.overclock-banner {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Press Start 2P', Arial, sans-serif;
+  font-size: 2em;
+  color: #0ff;
+  text-shadow: 
+    0 0 10px #0ff,
+    0 0 20px #0ff,
+    0 0 30px #0ff,
+    0 0 40px #0ff;
+  animation: overclockBannerPulse 0.5s infinite;
+  white-space: nowrap;
+  z-index: 1301;
+
+  &.fade-out {
+    animation: fadeOut 0.5s ease-out forwards;
+  }
+}
+
+.overclock-timer {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 80px;
+  z-index: 1302;
+
+  .overclock-timer-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+
+    .overclock-timer-bg {
+      fill: none;
+      stroke: rgba(0, 255, 255, 0.3);
+      stroke-width: 5;
+    }
+
+    .overclock-timer-progress {
+      fill: none;
+      stroke: #0ff;
+      stroke-width: 5;
+      stroke-dasharray: 283; // 2 * PI * 45
+      stroke-dashoffset: 0;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.1s linear;
+      filter: drop-shadow(0 0 5px #0ff);
+    }
+  }
+
+  .overclock-timer-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Press Start 2P', Arial, sans-serif;
+    font-size: 0.8em;
+    color: #0ff;
+    text-shadow: 0 0 10px #0ff;
+  }
+
+  &.fade-out {
+    animation: fadeOut 0.5s ease-out forwards;
+  }
+}
+
+@keyframes overclockBannerPulse {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.1);
+    opacity: 0.9;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.8);
+  }
+}
+
+// Guardian Shield UI Styles
+.shield-ui-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1400;
+  pointer-events: none;
+  display: none;
+
+  &.active {
+    display: block;
+  }
+}
+
+.shield-status-display {
+  background: rgba(0, 0, 0, 0.9);
+  border: 3px solid #0ff;
+  border-radius: 10px;
+  padding: 15px 20px;
+  min-width: 150px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  font-family: 'Press Start 2P', Arial, sans-serif;
+  display: none;
+
+  &.active {
+    display: block;
+    animation: shieldSlideIn 0.5s ease-out;
+  }
+
+  .shield-status-label {
+    color: #0ff;
+    font-size: 1em;
+    text-align: center;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px #0ff;
+  }
+
+  .shield-status-hits {
+    color: #0f0;
+    font-size: 0.9em;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .shield-status-time {
+    color: #ff0;
+    font-size: 0.8em;
+    text-align: center;
+  }
+
+  // Visual states based on remaining hits
+  &.hits-3 {
+    border-color: #0ff;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  }
+
+  &.hits-2 {
+    border-color: #ff0;
+    box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+    animation: shieldWarning 1s infinite;
+  }
+
+  &.hits-1 {
+    border-color: #f00;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+    animation: shieldCritical 0.5s infinite;
+  }
+
+  &.hits-0 {
+    border-color: #666;
+    opacity: 0.5;
+  }
+}
+
+@keyframes shieldSlideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes shieldWarning {
+  0%, 100% {
+    border-color: #ff0;
+    box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+  }
+  50% {
+    border-color: #ff8;
+    box-shadow: 0 0 30px rgba(255, 255, 136, 0.7);
+  }
+}
+
+@keyframes shieldCritical {
+  0%, 100% {
+    border-color: #f00;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    border-color: #f88;
+    box-shadow: 0 0 40px rgba(255, 136, 136, 0.8);
+    transform: scale(1.05);
+  }
+}
+
+// Thunder Strike Styles
+.thunder-flicker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0);
+  pointer-events: none;
+  z-index: 2000;
+  transition: background 0.05s ease-out;
+  display: none;
+
+  &.active {
+    display: block;
+    background: rgba(255, 255, 255, 0.9);
+    animation: thunderFlash 0.1s ease-out;
+  }
+}
+
+@keyframes thunderFlash {
+  0% {
+    background: rgba(255, 255, 255, 0);
+    opacity: 0;
+  }
+  50% {
+    background: rgba(255, 255, 255, 0.95);
+    opacity: 1;
+  }
+  100% {
+    background: rgba(255, 255, 255, 0);
+    opacity: 0;
+  }
+}
