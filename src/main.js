@@ -99,22 +99,55 @@ function initStreamUrlModal() {
   const submitBtn = document.getElementById("stream-url-submit");
   const cancelBtn = document.getElementById("stream-url-cancel");
   const startArenaBtn = document.getElementById("start-arena");
+  const openModalBtn = document.getElementById("open-stream-url-modal");
+  const defaultStreamUrl = "https://twitch.tv/empireofbits";
 
   // Check if streamUrl exists in URL params
   const urlParams = new URLSearchParams(window.location.search);
   const urlStreamUrl = urlParams.get("streamUrl");
-  
-  if (urlStreamUrl) {
-    currentStreamUrl = urlStreamUrl;
-    input.value = urlStreamUrl;
+  console.log("urlStreamUrl", urlStreamUrl);
+
+  const updateStartButtonState = () => {
     if (startArenaBtn) {
-      startArenaBtn.disabled = false;
+      startArenaBtn.disabled = !currentStreamUrl;
     }
-  } else {
-    // Show modal on page load if no streamUrl in URL
+  };
+
+  const showModal = () => {
     if (modal) {
+      if (input) {
+        const valueForInput = currentStreamUrl || urlStreamUrl || defaultStreamUrl;
+        input.value = valueForInput;
+        setTimeout(() => input.focus(), 0);
+      }
       modal.classList.add("active");
     }
+  };
+
+  const hideModal = () => {
+    if (modal) {
+      modal.classList.remove("active");
+    }
+  };
+
+  if (input) {
+    input.value = urlStreamUrl || defaultStreamUrl;
+  }
+
+  if (startArenaBtn) {
+    startArenaBtn.disabled = true;
+  }
+
+  // Always show modal on page load
+  showModal();
+
+  if (openModalBtn) {
+    openModalBtn.addEventListener("click", () => {
+      if (startArenaBtn) {
+        startArenaBtn.disabled = true;
+      }
+      showModal();
+    });
   }
 
   // Handle submit
@@ -123,12 +156,8 @@ function initStreamUrlModal() {
       const streamUrl = input.value.trim();
       if (streamUrl) {
         currentStreamUrl = streamUrl;
-        if (modal) {
-          modal.classList.remove("active");
-        }
-        if (startArenaBtn) {
-          startArenaBtn.disabled = false;
-        }
+        hideModal();
+        updateStartButtonState();
       } else {
         alert("Please enter a valid stream URL");
       }
@@ -141,14 +170,10 @@ function initStreamUrlModal() {
       // Use default streamUrl
       const urlParams = new URLSearchParams(window.location.search);
       const urlStreamUrl = urlParams.get("streamUrl");
-      currentStreamUrl = urlStreamUrl || "https://twitch.tv/empireofbits";
+      currentStreamUrl = urlStreamUrl || defaultStreamUrl;
       input.value = currentStreamUrl;
-      if (modal) {
-        modal.classList.remove("active");
-      }
-      if (startArenaBtn) {
-        startArenaBtn.disabled = false;
-      }
+      hideModal();
+      updateStartButtonState();
     });
   }
 

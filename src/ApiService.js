@@ -13,6 +13,7 @@ export class ApiService {
   // Initialize the game
   static async initializeGame() {
     const walletAddress = this.getUserIdFromUrl();
+    console.log("walletAddress", walletAddress);
 
     if (!walletAddress) {
       console.error("User ID not found in URL");
@@ -27,7 +28,7 @@ export class ApiService {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ walletAddress }),
+          body: JSON.stringify({ userId: walletAddress }),
         }
       );
 
