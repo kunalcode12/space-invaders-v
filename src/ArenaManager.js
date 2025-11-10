@@ -117,6 +117,11 @@ export class ArenaManager {
       this.addMonitorEvent("package_drop", dropInfo);
       this.onPackageDrop?.(dropInfo);
       this.onMonitorEvent?.("package_drop", dropInfo);
+
+      // Trigger package effects handler if available
+      if (window.itemEffects && dropInfo.packageName) {
+        window.itemEffects.handlePackageDrop(dropInfo);
+      }
     };
 
     // Immediate item drop
@@ -142,6 +147,11 @@ export class ArenaManager {
       this.addMonitorEvent("immediate_item_drop", dropInfo);
       this.onItemDrop?.(dropInfo);
       this.onMonitorEvent?.("immediate_item_drop", dropInfo);
+      
+      // Trigger item effects handler if available
+      if (window.itemEffects && dropInfo.itemName) {
+        window.itemEffects.handleItemDrop(dropInfo);
+      }
     };
 
     // Event triggered

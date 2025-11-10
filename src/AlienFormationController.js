@@ -117,7 +117,7 @@ export class AlienFormationController {
     let index = 0
     for (let a of this.aliens) {
       if (a.id === mesh.id) {
-        State.score += mesh.metadata.scoreValue;
+        State.addScore(mesh.metadata.scoreValue);
 
         // Bigger aliens have bigger explosions
         new Explosion(mesh, 20 * mesh.scaling.x, mesh.scaling.x / 1.5, this.scene);
@@ -146,8 +146,10 @@ export class AlienFormationController {
   }
 
   fireBullets() {
-    if (!this.aliens.length) return;
-    let firenow = Math.random() * (60 / State.delta) < this.levelParams.fireRate;
+    if (!this.aliens.length || State.rainDropActive) return;
+    // Apply slow-motion to fire rate (slower firing during Precision Mode)
+    const effectiveFireRate = this.levelParams.fireRate * (State.slowMotionMultiplier || 1);
+    let firenow = Math.random() * (60 / State.delta) < effectiveFireRate;
     if (firenow) {
       let randAlien = this.aliens[Math.floor(Math.random() * this.aliens.length)];
       let randAlienMesh = randAlien.mesh;
@@ -157,8 +159,11 @@ export class AlienFormationController {
   }
 
   updateAlienMeshPositions() {
+    if (State.rainDropActive) return;
+    // Apply slow-motion multiplier to alien movement (but not player movement)
+    const effectiveAnimSpeed = this.formationAnimSpeed * (State.slowMotionMultiplier || 1);
     for (const alien of this.aliens) {
-      let alienPosition = alien.updateMeshPosition(this.formationAnimSpeed);
+      let alienPosition = alien.updateMeshPosition(effectiveAnimSpeed);
       this.changeDirectionIfAtEdge(alienPosition);
       this.checkCollisionWithGround(alienPosition);
     }
@@ -172,6 +177,12 @@ export class AlienFormationController {
   }
 
   moveFormation() {
+    if (State.rainDropActive) {
+      this.formationAnimTick = setTimeout(() => {
+        this.moveFormation();
+      }, this.formationAnimInterval);
+      return;
+    }
     if (this.direction === "right") {
       this.aliensController.formation.x += 5;
     }

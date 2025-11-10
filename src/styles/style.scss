@@ -1183,14 +1183,14 @@ canvas {
 .item-notification {
   position: fixed;
   top: 20px;
-  left: 20px;
+  right: 20px;
   z-index: 1500;
   display: none;
   pointer-events: none;
 
   &.active {
     display: block;
-    animation: itemSlideIn 0.5s ease-out, itemSlideOut 0.5s ease-in 3.5s forwards;
+    animation: itemSlideInRight 0.5s ease-out, itemSlideOutRight 0.5s ease-in 3.5s forwards;
   }
 
   .item-notification-content {
@@ -1240,9 +1240,56 @@ canvas {
   }
 }
 
-@keyframes itemSlideIn {
+// Package Notification Styles
+.package-notification {
+  position: fixed;
+  top: 130px;
+  right: 20px;
+  z-index: 1500;
+  display: none;
+  pointer-events: none;
+
+  &.active {
+    display: block;
+    animation: packageSlideIn 0.4s ease-out, packageSlideOut 0.4s ease-in 4.5s forwards;
+  }
+
+  .package-notification-content {
+    background: rgba(20, 20, 20, 0.92);
+    border: 3px solid #ff5555;
+    border-radius: 10px;
+    padding: 18px 20px;
+    min-width: 260px;
+    box-shadow: 0 0 25px rgba(255, 85, 85, 0.55);
+  }
+
+  .package-notification-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-family: 'Press Start 2P', Arial, sans-serif;
+    font-size: 0.78em;
+    color: #fff;
+
+    .package-notification-name {
+      font-size: 1em;
+      color: #ff5555;
+      text-shadow: 0 0 10px rgba(255, 85, 85, 0.8);
+    }
+
+    .package-player-name {
+      color: #ffd280;
+    }
+
+    .package-cost {
+      color: #6bffb5;
+    }
+  }
+}
+
+@keyframes packageSlideIn {
   from {
-    transform: translateX(-400px);
+    transform: translateX(320px);
     opacity: 0;
   }
   to {
@@ -1251,13 +1298,35 @@ canvas {
   }
 }
 
-@keyframes itemSlideOut {
+@keyframes packageSlideOut {
   from {
     transform: translateX(0);
     opacity: 1;
   }
   to {
-    transform: translateX(-400px);
+    transform: translateX(320px);
+    opacity: 0;
+  }
+}
+
+@keyframes itemSlideInRight {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes itemSlideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(400px);
     opacity: 0;
   }
 }
@@ -1507,6 +1576,61 @@ canvas {
   }
 }
 
+// Precision Mode Overlay Styles
+.precision-mode-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1200;
+  pointer-events: none;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+
+  &.active {
+    display: block;
+    opacity: 1;
+  }
+
+  // Screen edge darkening using gradient masks
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  // Top and bottom edges
+  &::before {
+    top: 0;
+    left: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.6) 0%,
+      rgba(0, 0, 0, 0) 15%,
+      rgba(0, 0, 0, 0) 85%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+  }
+
+  // Left and right edges
+  &::after {
+    top: 0;
+    left: 0;
+    background: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.6) 0%,
+      rgba(0, 0, 0, 0) 10%,
+      rgba(0, 0, 0, 0) 90%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+  }
+}
+
 @keyframes thunderFlash {
   0% {
     background: rgba(255, 255, 255, 0);
@@ -1519,5 +1643,144 @@ canvas {
   100% {
     background: rgba(255, 255, 255, 0);
     opacity: 0;
+  }
+}
+
+// Frenzy Mode Overlay
+.frenzy-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1450;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+
+  &.active {
+    display: flex;
+    opacity: 1;
+    animation: frenzyTint 0.8s ease-in-out infinite alternate;
+  }
+
+  .frenzy-overlay-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .frenzy-score-banner {
+    font-family: 'Press Start 2P', Arial, sans-serif;
+    font-size: 2.6em;
+    letter-spacing: 4px;
+    color: #ff6666;
+    text-shadow:
+      0 0 12px rgba(255, 0, 0, 0.9),
+      0 0 25px rgba(255, 0, 0, 0.75),
+      0 0 40px rgba(255, 80, 80, 0.8);
+    opacity: 0.95;
+  }
+
+  .frenzy-timer {
+    font-family: 'Press Start 2P', Arial, sans-serif;
+    font-size: 1.2em;
+    color: #ffe4e4;
+    text-shadow: 0 0 10px rgba(255, 120, 120, 0.8);
+  }
+}
+
+@keyframes frenzyTint {
+  0% {
+    background: rgba(120, 0, 0, 0.35);
+  }
+  100% {
+    background: rgba(200, 0, 0, 0.55);
+  }
+}
+
+body.frenzy-active .frenzy-score-banner {
+  animation: frenzyBeat 0.6s cubic-bezier(0.66, 0, 0.34, 1) infinite;
+}
+
+@keyframes frenzyBeat {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  35% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.96);
+    opacity: 0.8;
+  }
+}
+
+// Rain Drop Bonus Banner
+.rain-drop-banner {
+  position: fixed;
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1500;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 32px;
+  background: linear-gradient(135deg, rgba(0, 191, 255, 0.95), rgba(144, 238, 144, 0.9));
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  border-radius: 18px;
+  box-shadow: 0 0 35px rgba(0, 191, 255, 0.6), 0 0 50px rgba(144, 238, 144, 0.4);
+  pointer-events: none;
+  animation: rainDropPulse 1.2s ease-in-out infinite;
+
+  &.active {
+    display: flex;
+  }
+
+  .rain-drop-title {
+    font-family: 'Press Start 2P', Arial, sans-serif;
+    font-size: 1.4em;
+    color: #fff;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.9), 0 0 24px rgba(0, 191, 255, 0.7);
+    letter-spacing: 2px;
+  }
+
+  .rain-drop-subtitle {
+    font-family: 'Press Start 2P', Arial, sans-serif;
+    font-size: 0.7em;
+    color: rgba(255, 255, 255, 0.95);
+    text-align: center;
+    line-height: 1.6;
+    max-width: 420px;
+  }
+
+  .rain-drop-timer {
+    font-family: 'Press Start 2P', Arial, sans-serif;
+    font-size: 1.1em;
+    padding: 6px 16px;
+    background: rgba(0, 0, 0, 0.45);
+    border-radius: 12px;
+    color: #0ff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@keyframes rainDropPulse {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    box-shadow: 0 0 35px rgba(0, 191, 255, 0.6), 0 0 50px rgba(144, 238, 144, 0.4);
+  }
+  50% {
+    transform: translateX(-50%) scale(1.05);
+    box-shadow: 0 0 45px rgba(0, 191, 255, 0.75), 0 0 65px rgba(144, 238, 144, 0.55);
   }
 }

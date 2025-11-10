@@ -154,12 +154,12 @@ export class BoostEffects {
     if (this.gameController) {
       // Check if game is in progress (GAMELOOP state)
       if (State.state === "GAMELOOP" || State.state === "STARTGAME" || State.state === "NEXTLEVEL") {
-        State.score += amount;
+        const awarded = State.addScore(amount);
         // Update GUI if it exists
         if (this.gameController.gameGUI) {
           this.gameController.gameGUI.update();
         }
-        console.log(`Added ${amount} points to score. New score: ${State.score}`);
+        console.log(`Added ${awarded} points to score. New score: ${State.score}`);
       } else {
         // Even if game isn't started, we can still show the effects
         console.log(`Boost received: ${amount} from ${name} (Game not started yet)`);

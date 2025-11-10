@@ -1,4 +1,4 @@
-import {MeshBuilder, Vector3} from "@babylonjs/core";
+import {MeshBuilder, Vector3, StandardMaterial, Color3} from "@babylonjs/core";
 import State from "./State";
 
 export class AlienBullet {
@@ -25,6 +25,11 @@ export class AlienBullet {
     this.bullet.collisionMask = 49; // Can collide with player (1), barriers (16), and shield (32) = 1 + 16 + 32 = 49
     this.bullet.metadata = { type: "alienbullet" };
 
+    // Trail particles for Precision Mode
+    this.trailParticles = [];
+    this.lastTrailTime = 0;
+    this.trailInterval = 50; // Create trail particle every 50ms
+
     this.startBulletLoop();
   }
 
@@ -36,8 +41,23 @@ export class AlienBullet {
         return;
       }
 
-      let moveVector = this.bullet.calcMovePOV(0, this.bulletSpeed * State.delta, 0);
+      // Apply slow-motion multiplier (affects alien bullets but not player movement)
+      const effectiveDelta = State.delta * (State.slowMotionMultiplier || 1);
+      let moveVector = this.bullet.calcMovePOV(0, this.bulletSpeed * effectiveDelta, 0);
       this.bullet.moveWithCollisions(moveVector);
+      
+      // Create trail particles during Precision Mode
+      if (State.precisionModeActive) {
+        const currentTime = Date.now();
+        if (currentTime - this.lastTrailTime >= this.trailInterval) {
+          this.createTrailParticle();
+          this.lastTrailTime = currentTime;
+        }
+      }
+      
+      // Update and cleanup trail particles
+      this.updateTrailParticles();
+      
       if (this.bullet.position.y < this.minY) {
         this.destroyBullet();
       }
@@ -46,6 +66,55 @@ export class AlienBullet {
       }
 
     });
+  }
+
+  createTrailParticle() {
+    if (!this.bullet || this.bullet.isDisposed) return;
+    
+    const trail = MeshBuilder.CreateSphere(`alienBulletTrail_${Date.now()}_${Math.random()}`, {
+      diameter: 0.3,
+      segments: 4
+    }, this.scene);
+    
+    trail.position = this.bullet.position.clone();
+    
+    // Create glowing material for trail (reddish for alien bullets)
+    const trailMaterial = new StandardMaterial(`alienTrailMaterial_${Date.now()}`, this.scene);
+    trailMaterial.emissiveColor = new Color3(1, 0.6, 0.6); // Light red/pink
+    trailMaterial.alpha = 0.7;
+    trail.material = trailMaterial;
+    trail.renderingGroupId = 2;
+    
+    this.trailParticles.push({
+      mesh: trail,
+      material: trailMaterial,
+      startTime: Date.now(),
+      duration: 300, // Fade out over 300ms
+      startPosition: this.bullet.position.clone()
+    });
+  }
+
+  updateTrailParticles() {
+    const currentTime = Date.now();
+    for (let i = this.trailParticles.length - 1; i >= 0; i--) {
+      const trail = this.trailParticles[i];
+      if (!trail.mesh || trail.mesh.isDisposed) {
+        this.trailParticles.splice(i, 1);
+        continue;
+      }
+      
+      const elapsed = currentTime - trail.startTime;
+      const progress = elapsed / trail.duration;
+      
+      if (progress >= 1) {
+        trail.mesh.dispose();
+        this.trailParticles.splice(i, 1);
+      } else {
+        // Fade out and shrink
+        trail.material.alpha = 0.7 * (1 - progress);
+        trail.mesh.scaling.scaleInPlace(1 - progress * 0.5);
+      }
+    }
   }
 
   handleCollision() {
@@ -96,6 +165,15 @@ export class AlienBullet {
 
   destroyBullet() {
     this.scene.onBeforeRenderObservable.remove(this.bulletObserver);
+    
+    // Clean up trail particles
+    for (const trail of this.trailParticles) {
+      if (trail.mesh && !trail.mesh.isDisposed) {
+        trail.mesh.dispose();
+      }
+    }
+    this.trailParticles = [];
+    
     this.bullet.dispose();
     this.disposed = true; // Tells our game loop to destroy this instance.
   }

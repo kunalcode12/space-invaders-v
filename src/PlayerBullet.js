@@ -29,6 +29,11 @@ export class PlayerBullet {
     this.bullet.collisionGroup = 4;
     this.bullet.collisionMask = 18;
     
+    // Trail particles for Precision Mode
+    this.trailParticles = [];
+    this.lastTrailTime = 0;
+    this.trailInterval = 50; // Create trail particle every 50ms
+    
     // Apply Overclock visual effect (cyan glow)
     if (isOverclock) {
       this.applyOverclockEffect();
@@ -52,7 +57,22 @@ export class PlayerBullet {
 
   startBulletLoop() {
     this.bulletObserver = this.scene.onBeforeRenderObservable.add(() => {
-      this.bullet.moveWithCollisions(new Vector3(0, this.bulletSpeed * State.delta, 0))
+      // Apply slow-motion multiplier to player bullets (but player movement/fire is unaffected)
+      const effectiveDelta = State.delta * (State.slowMotionMultiplier || 1);
+      this.bullet.moveWithCollisions(new Vector3(0, this.bulletSpeed * effectiveDelta, 0))
+      
+      // Create trail particles during Precision Mode
+      if (State.precisionModeActive) {
+        const currentTime = Date.now();
+        if (currentTime - this.lastTrailTime >= this.trailInterval) {
+          this.createTrailParticle();
+          this.lastTrailTime = currentTime;
+        }
+      }
+      
+      // Update and cleanup trail particles
+      this.updateTrailParticles();
+      
       if (this.bullet.position.y > this.maxY) {
         this.destroyBullet();
       }
@@ -61,6 +81,55 @@ export class PlayerBullet {
       }
       this.bullet.checkCollisions = true;
     });
+  }
+
+  createTrailParticle() {
+    if (!this.bullet || this.bullet.isDisposed) return;
+    
+    const trail = MeshBuilder.CreateSphere(`bulletTrail_${Date.now()}_${Math.random()}`, {
+      diameter: 0.3,
+      segments: 4
+    }, this.scene);
+    
+    trail.position = this.bullet.position.clone();
+    
+    // Create glowing material for trail
+    const trailMaterial = new StandardMaterial(`trailMaterial_${Date.now()}`, this.scene);
+    trailMaterial.emissiveColor = new Color3(0.8, 0.9, 1); // Light blue/cyan
+    trailMaterial.alpha = 0.7;
+    trail.material = trailMaterial;
+    trail.renderingGroupId = 2;
+    
+    this.trailParticles.push({
+      mesh: trail,
+      material: trailMaterial,
+      startTime: Date.now(),
+      duration: 300, // Fade out over 300ms
+      startPosition: this.bullet.position.clone()
+    });
+  }
+
+  updateTrailParticles() {
+    const currentTime = Date.now();
+    for (let i = this.trailParticles.length - 1; i >= 0; i--) {
+      const trail = this.trailParticles[i];
+      if (!trail.mesh || trail.mesh.isDisposed) {
+        this.trailParticles.splice(i, 1);
+        continue;
+      }
+      
+      const elapsed = currentTime - trail.startTime;
+      const progress = elapsed / trail.duration;
+      
+      if (progress >= 1) {
+        trail.mesh.dispose();
+        this.trailParticles.splice(i, 1);
+      } else {
+        // Fade out and shrink
+        trail.material.alpha = 0.7 * (1 - progress);
+        trail.mesh.scaling.scaleInPlace(1 - progress * 0.5);
+      }
+    }
   }
 
   handleCollision() {
@@ -103,6 +172,15 @@ export class PlayerBullet {
 
   destroyBullet() {
     this.scene.onBeforeRenderObservable.remove(this.bulletObserver);
+    
+    // Clean up trail particles
+    for (const trail of this.trailParticles) {
+      if (trail.mesh && !trail.mesh.isDisposed) {
+        trail.mesh.dispose();
+      }
+    }
+    this.trailParticles = [];
+    
     this.bullet.dispose();
     this.disposed = true; // Tells our game loop to destroy this instance.
   }

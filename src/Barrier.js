@@ -99,7 +99,7 @@ export class Barrier {
     let index = Math.floor(Math.random() * (this.bricks.length - 1)) + 1;
     this.bricks[index].dispose();
     this.bricks.splice(index, 1);
-    State.score += 1;
+    State.addScore(1);
 
     if (this.bricks.length === 1) {
       //Destroy the root mesh

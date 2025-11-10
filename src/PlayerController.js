@@ -31,6 +31,7 @@ export class PlayerController {
     this.lastFireTime = 0;
     this.fireCooldown = 0; // Cooldown between shots (ms)
     this.normalFireCooldown = 200; // Normal cooldown (ms)
+    this.movementSpeedMultiplier = 1;
     
     // Guardian Shield properties
     this.guardianShield = null;
@@ -40,6 +41,13 @@ export class PlayerController {
     this.thunderStrikeActive = false;
     this.thunderStrikeDuration = 0;
     this.thunderStrikeStartTime = 0;
+    
+    // Frenzy Mode properties
+    this.frenzyActive = false;
+    this.frenzyDuration = 0;
+    this.frenzyStartTime = 0;
+    this.frenzyFireRateMultiplier = 1;
+    this.frenzyTimeoutId = null;
   }
 
   initPlayer() {
@@ -179,10 +187,16 @@ export class PlayerController {
       const currentTime = Date.now();
       const timeSinceLastFire = currentTime - this.lastFireTime;
       
+      let rapidFireMultiplier = 1;
       if (this.overclockActive) {
-        // Overclock mode: continuous firing with 2x faster rate
-        const effectiveCooldown = this.normalFireCooldown / 2; // 2x faster (half cooldown = 100ms)
-        
+        rapidFireMultiplier = Math.max(rapidFireMultiplier, this.overclockFireRate || 2);
+      }
+      if (this.frenzyActive) {
+        rapidFireMultiplier = Math.max(rapidFireMultiplier, this.frenzyFireRateMultiplier || 1.5);
+      }
+
+      if (rapidFireMultiplier > 1) {
+        const effectiveCooldown = this.normalFireCooldown / rapidFireMultiplier;
         if (timeSinceLastFire >= effectiveCooldown && this.bullets.length < this.maxBullets && this.movementEnabled) {
           this.fireBullet();
           this.lastFireTime = currentTime;
@@ -206,15 +220,18 @@ export class PlayerController {
     // Update Thunder Strike status
     this.updateThunderStrikeStatus();
     
+    // Update Frenzy status
+    this.updateFrenzyStatus();
+    
     this.playerMove();
   }
 
   playerMoveLeft() {
-    this.momentum -= .2 * State.delta;
+    this.momentum -= 0.2 * this.movementSpeedMultiplier * State.delta;
   }
 
   playerMoveRight() {
-    this.momentum += .2 * State.delta;
+    this.momentum += 0.2 * this.movementSpeedMultiplier * State.delta;
   }
 
   // @todo: Player movement is faster at lower framerates!!!
@@ -288,6 +305,44 @@ export class PlayerController {
         this.overclockActive = false;
         this.overclockFireRate = 1;
         this.overclockTripleShot = false;
+      }
+    }
+  }
+
+  activateFrenzyMode(duration = 8000, options = {}) {
+    if (this.frenzyTimeoutId) {
+      clearTimeout(this.frenzyTimeoutId);
+      this.frenzyTimeoutId = null;
+    }
+
+    this.frenzyActive = true;
+    this.frenzyDuration = duration;
+    this.frenzyStartTime = Date.now();
+    this.frenzyFireRateMultiplier = options.fireRateMultiplier || 1.5;
+    this.movementSpeedMultiplier = options.speedMultiplier || 1.5;
+
+    this.frenzyTimeoutId = setTimeout(() => {
+      this.deactivateFrenzyMode();
+    }, duration);
+  }
+
+  deactivateFrenzyMode() {
+    if (this.frenzyTimeoutId) {
+      clearTimeout(this.frenzyTimeoutId);
+      this.frenzyTimeoutId = null;
+    }
+    this.frenzyActive = false;
+    this.frenzyDuration = 0;
+    this.frenzyStartTime = 0;
+    this.frenzyFireRateMultiplier = 1;
+    this.movementSpeedMultiplier = 1;
+  }
+
+  updateFrenzyStatus() {
+    if (this.frenzyActive) {
+      const elapsed = Date.now() - this.frenzyStartTime;
+      if (elapsed >= this.frenzyDuration) {
+        this.deactivateFrenzyMode();
       }
     }
   }

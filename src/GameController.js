@@ -25,6 +25,7 @@ export class GameController {
     State.lives = config.startingLives;
     State.level = config.startingLevel;
     State.score = 0;
+    State.scoreMultiplier = 1;
     State.highScore = this.getHighScore();
     State.gameOverStep = 0;
     State.gameOverStep = 0;

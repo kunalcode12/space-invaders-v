@@ -31,7 +31,7 @@ export class MotherShip {
     }
     this.mesh.onDispose = (mesh) => {
       if (this.mesh.metadata.silentDispose === undefined) {
-        State.score += mesh.metadata.scoreValue;
+        State.addScore(mesh.metadata.scoreValue);
         new Explosion(mesh, 60, 1.5, this.scene);
         this.gameAssets.sounds.motherShipExplosion.play();
       }
@@ -43,8 +43,10 @@ export class MotherShip {
   }
 
   fireBullets() {
-    if (!this.active || State.state !== "GAMELOOP") return;
-    let firenow = Math.random() * (60 / State.delta) < this.fireRate;
+    if (!this.active || State.state !== "GAMELOOP" || State.rainDropActive) return;
+    // Apply slow-motion to fire rate (slower firing during Precision Mode)
+    const effectiveFireRate = this.fireRate * (State.slowMotionMultiplier || 1);
+    let firenow = Math.random() * (60 / State.delta) < effectiveFireRate;
     if (firenow) {
       this.bullets.push(new AlienBullet(this.scene, this.mesh));
       this.gameAssets.sounds.alienBullet.play();
@@ -74,7 +76,7 @@ export class MotherShip {
   }
 
   activate() {
-    if (State.state !== "GAMELOOP") return;
+    if (State.state !== "GAMELOOP" || State.rainDropActive) return;
     this.initMotherShipMesh();
     this.mesh.position = new Vector3(-100, 100, 0);
     this.startLoopArc();
@@ -113,7 +115,9 @@ export class MotherShip {
     };
     let i = 0;
     this.mothershipLoop = this.scene.onBeforeRenderObservable.add(() => {
-      i += (this.velocity / 250) * State.delta;
+      // Apply slow-motion multiplier to MotherShip movement (but not player movement)
+      const effectiveDelta = State.delta * (State.slowMotionMultiplier || 1);
+      i += (this.velocity / 250) * effectiveDelta;
       if (spaceinvadersConfig.oldSchoolEffects.enabled) {
         // If orthographic camera is in use,
         // rotate the mesh just once every 15 frames
@@ -123,7 +127,7 @@ export class MotherShip {
            this.mesh.rotate(Axis.Y, this.mesh.rotation.y+Math.PI / 8, Space.LOCAL);
         }
       } else {
-        this.mesh.rotate(Axis.Y, this.mesh.rotation.y + (spaceinvadersConfig.motherShip.rotateSpeed * State.delta), Space.LOCAL);
+        this.mesh.rotate(Axis.Y, this.mesh.rotation.y + (spaceinvadersConfig.motherShip.rotateSpeed * effectiveDelta), Space.LOCAL);
       }
       let pos = {
         x: center.x + Math.cos(i) * radius.x,
