@@ -139,7 +139,9 @@ function initStreamUrlModal() {
   if (cancelBtn) {
     cancelBtn.addEventListener("click", () => {
       // Use default streamUrl
-      currentStreamUrl = "https://twitch.tv/empireofbits";
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlStreamUrl = urlParams.get("streamUrl");
+      currentStreamUrl = urlStreamUrl || "https://twitch.tv/empireofbits";
       input.value = currentStreamUrl;
       if (modal) {
         modal.classList.remove("active");
