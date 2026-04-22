@@ -1,12 +1,10 @@
 import { io } from "socket.io-client";
 import axios from "axios";
 
-const ARENA_SERVER_URL =
-  import.meta.env.VITE_ARENA_SERVER_URL || "wss://airdrop-arcade.onrender.com";
-const GAME_API_URL = "https://airdrop-arcade.onrender.com/api";
-const VORLD_APP_ID =  "app_mgs5crer_51c332b3";
-const ARENA_GAME_ID =
-  import.meta.env.VITE_ARENA_GAME_ID || "arcade_mhdq1qoy_4a126fd8";
+const ARENA_SERVER_URL = "wss://dev.reactive.thevorld.com";
+const GAME_API_URL = "https://dev.reactive.thevorld.com/api";
+const VORLD_APP_ID = "app_mgs5crer_51c332b3";
+const ARENA_GAME_ID = "arcade_mhyvtb3f_0d978769";
 
 export class ArenaGameService {
   constructor() {
@@ -35,7 +33,6 @@ export class ArenaGameService {
       this.userToken = userToken.trim();
       console.log("User Token:", typeof this.userToken, this.userToken);
       console.log("Stream URL:", streamUrl);
-      // console.log(typeof userToken, userToken);
 
       const response = await axios.post(
         `${GAME_API_URL}/games/init`,
@@ -89,7 +86,7 @@ export class ArenaGameService {
 
       // Determine WebSocket (Socket.IO) base origin URL
       const providedUrl = this.gameState.websocketUrl;
-      let wsUrl = "https://airdrop-arcade.onrender.com"; // fallback URL
+      let wsUrl = "https://dev.reactive.thevorld.com"; // fallback URL
 
       if (providedUrl && providedUrl.trim().length > 0) {
         try {
@@ -105,7 +102,7 @@ export class ArenaGameService {
         } catch (e) {
           console.error("Failed to parse WebSocket URL, using fallback:", e);
           // Fallback to default if parsing fails
-          wsUrl = "https://airdrop-arcade.onrender.com";
+          wsUrl = "https://dev.reactive.thevorld.com";
         }
       }
 
@@ -290,7 +287,6 @@ export class ArenaGameService {
             "X-Vorld-App-ID": VORLD_APP_ID,
             "Content-Type": "application/json",
           },
-          // Add timeout to prevent hanging requests
           timeout: 10000,
         }
       );
