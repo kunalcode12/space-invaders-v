@@ -4,7 +4,7 @@ import axios from "axios";
 const ARENA_SERVER_URL = "wss://dev.reactive.thevorld.com";
 const GAME_API_URL = "https://dev.reactive.thevorld.com/api";
 const VORLD_APP_ID = "app_mgs5crer_51c332b3";
-const ARENA_GAME_ID = "arcade_mhyvtb3f_0d978769";
+const ARENA_GAME_ID = "arcade_mhdq1qoy_4a126fd8";
 
 export class ArenaGameService {
   constructor() {
