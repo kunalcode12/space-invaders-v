@@ -22,7 +22,7 @@ export class ApiService {
 
     try {
       const response = await fetch(
-        "https://backend.empireofbits.fun/api/v1/games/spaceinvaders",
+        "https://backend-em-b0an.onrender.com/api/v1/games/spaceinvaders",
         {
           method: "POST",
           headers: {
@@ -54,7 +54,7 @@ export class ApiService {
 
     try {
       const response = await fetch(
-        `https://backend.empireofbits.fun/api/v1/games/spaceinvaders/${walletAddress}/session`,
+        `https://backend-em-b0an.onrender.com/api/v1/games/spaceinvaders/${walletAddress}/session`,
         {
           method: "POST",
           headers: {

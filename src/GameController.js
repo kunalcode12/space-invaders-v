@@ -17,7 +17,7 @@ export class GameController {
     this.inputController = inputController;
     this.gameAssets = gameAssets;
     this.playerController = new PlayerController(environment, this.gameAssets);
-    this.redirectUrl = "https://empireofbits.fun/";
+    this.redirectUrl = "https://empireofbits.xyz/";
     this.gameInitialized = false;
   }
 
