@@ -190,6 +190,43 @@ function initStreamUrlModal() {
 // Initialize streamUrl modal on page load
 initStreamUrlModal();
 
+function shouldShowStreamerRoleModal(result) {
+  const msg = String(result?.error ?? "").toLowerCase();
+  if (msg.includes("streamer role")) return true;
+  if (
+    result?.errorCode === "FORBIDDEN" &&
+    msg.includes("streamer")
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function initStreamerRoleModal() {
+  const modal = document.getElementById("streamer-role-modal");
+  const closeBtn = document.getElementById("streamer-role-modal-close");
+  const hide = () => {
+    if (modal) {
+      modal.classList.remove("active");
+      modal.setAttribute("aria-hidden", "true");
+    }
+  };
+  closeBtn?.addEventListener("click", hide);
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) hide();
+  });
+}
+
+initStreamerRoleModal();
+
+function showStreamerRoleModal() {
+  const modal = document.getElementById("streamer-role-modal");
+  if (modal) {
+    modal.classList.add("active");
+    modal.setAttribute("aria-hidden", "false");
+  }
+}
+
 // Setup arena event handlers for UI updates
 arenaManager.onStatusChange = (status) => {
   UI.updateArenaStatus(status, arenaManager.countdown);
@@ -203,6 +240,8 @@ arenaManager.onArenaBegins = (data) => {
   UI.updateArenaStatus("live", null);
   console.log("Arena has begun! Game can now start.");
 };
+
+UI.updateArenaStatus("pending", null);
 
 // Setup boost received handler - will be set up in initBoostEffects
 
@@ -273,7 +312,11 @@ window.onArenaStartClick = async () => {
       }
     } else {
       console.error("Failed to initialize arena:", result.error);
-      alert(`Failed to initialize arena: ${result.error || "Unknown error"}`);
+      if (shouldShowStreamerRoleModal(result)) {
+        showStreamerRoleModal();
+      } else {
+        alert(`Failed to initialize arena: ${result.error || "Unknown error"}`);
+      }
       if (startArenaBtn) {
         startArenaBtn.disabled = false;
         startArenaBtn.textContent = "START ARENA";
@@ -301,8 +344,8 @@ window.addEventListener("arena-disconnected", () => {
   }
   
   if (startGameBtn) {
-    startGameBtn.style.display = "none";
-    startGameBtn.disabled = true;
+    startGameBtn.style.display = "block";
+    startGameBtn.disabled = false;
   }
   
   UI.updateArenaStatus("pending", null);

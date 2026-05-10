@@ -114,7 +114,7 @@
         <button id="start-arena" class="arena-start-btn" disabled>START ARENA</button>
       </p>
       <p>
-        <button id="start-game" style="display: none;" disabled>START GAME</button>
+        <button id="start-game">START GAME</button>
       </p>
     </div>
     
@@ -133,6 +133,29 @@
         <div class="stream-url-buttons">
           <button id="stream-url-cancel" class="stream-url-btn stream-url-cancel">Cancel</button>
           <button id="stream-url-submit" class="stream-url-btn stream-url-submit">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Streamer role required (403) — informational only -->
+    <div id="streamer-role-modal" class="stream-url-modal" aria-hidden="true">
+      <div class="stream-url-modal-content streamer-role-modal-content">
+        <h2>Streamer mode required</h2>
+        <p class="stream-url-hint">
+          Open your profile on Vorld and enable streamer mode, then try starting the arena again.
+        </p>
+        <p class="stream-url-hint">
+          <a
+            href="https://vorld.tv/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="streamer-role-modal-link"
+            >https://vorld.tv/</a>
+        </p>
+        <div class="stream-url-buttons">
+          <button type="button" id="streamer-role-modal-close" class="stream-url-btn stream-url-submit">
+            OK
+          </button>
         </div>
       </div>
     </div>

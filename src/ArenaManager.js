@@ -218,6 +218,7 @@ export class ArenaManager {
         return {
           success: false,
           error: result.error || "Failed to initialize arena",
+          errorCode: result.errorCode,
         };
       }
     } catch (error) {

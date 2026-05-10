@@ -861,6 +861,16 @@ canvas {
   }
 }
 
+.streamer-role-modal-content .streamer-role-modal-link {
+  color: #0ff;
+  word-break: break-all;
+  text-decoration: underline;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
 // Boost Notification Popup Styles
 .boost-notification {
   position: fixed;

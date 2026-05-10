@@ -50,12 +50,6 @@ export class UIText {
   }
 
   startButtonClick(el) {
-    // Check if arena is active before starting game
-    if (window.arenaManager && !window.arenaManager.canStartGame()) {
-      console.warn("Cannot start game: Arena is not live");
-      alert("Please wait for the arena to begin before starting the game.");
-      return;
-    }
     this.hideTitleScreen();
     State.state = "STARTGAME";
   }
@@ -94,20 +88,12 @@ export class UIText {
       }
     }
 
-    // Enable/disable start game button based on arena status
+    // Start game is always available (offline play). When arena is live, hide START ARENA only.
     if (startGameBtn) {
-      if (status === "live") {
-        startGameBtn.style.display = "block";
-        startGameBtn.disabled = false;
-        if (startArenaBtn) {
-          startArenaBtn.style.display = "none";
-        }
-      } else {
-        startGameBtn.style.display = "none";
-        startGameBtn.disabled = true;
-        if (startArenaBtn) {
-          startArenaBtn.style.display = "block";
-        }
+      startGameBtn.style.display = "block";
+      startGameBtn.disabled = false;
+      if (startArenaBtn) {
+        startArenaBtn.style.display = status === "live" ? "none" : "block";
       }
     }
   }

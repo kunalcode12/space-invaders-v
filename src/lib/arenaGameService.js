@@ -155,9 +155,20 @@ export class ArenaGameService {
       };
     } catch (error) {
       console.error("Error initializing game:", error);
+      const resData = error.response?.data;
+      const nested = resData?.error;
+      const message =
+        (typeof nested === "object" && nested?.message) ||
+        (typeof nested === "string" ? nested : null) ||
+        resData?.message ||
+        error.message ||
+        "Failed to initialize game";
+      const code =
+        typeof nested === "object" && nested?.code ? nested.code : undefined;
       return {
         success: false,
-        error: error.response?.data?.message || "Failed to initialize game",
+        error: message,
+        errorCode: code,
       };
     }
   }
